@@ -1,0 +1,32 @@
+<link rel="import" href="../../bower_components/polymer/polymer-element.html">
+
+<dom-module id="calculator-input">
+  <template>
+    <style>
+      :host {
+        display: block;
+      }
+    </style>
+    <input type="number" value="{{result::input}}">
+  </template>
+
+  <script>
+    /**
+     * @customElement
+     * @polymer
+     */
+    class CalculatorInput extends Polymer.Element {
+      static get is() { return 'calculator-input'; }
+      static get properties() {
+        return {
+          result: {
+            type: Number,
+            value: 0
+          }
+        };
+      }
+    }
+
+    window.customElements.define(CalculatorInput.is, CalculatorInput);
+  </script>
+</dom-module>

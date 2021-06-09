@@ -1,0 +1,214 @@
+<link rel="import" href="../../bower_components/polymer/lib/elements/dom-repeat.html">
+<link rel="import" href="../../bower_components/polymer/polymer-element.html">
+
+<link rel="import" href="../calculator-input/calculator-input.html">
+<link rel="import" href="../calculator-button/calculator-button.html">
+
+<dom-module id="calculator-app">
+  <template>
+    <style>
+      *,
+      *::before,
+      *::after {
+        box-sizing: border-box;
+        font-family: Gotham Rounded, sans-serif;
+        font-weight: normal;
+      }
+
+      body {
+        padding: 0;
+        margin: 0;
+      }
+
+      .calculator-grid {
+        display: grid;
+        justify-content: center;
+        align-content: center;
+        min-height: 100vh;
+        grid-template-columns: repeat(4, 100px);
+        grid-template-rows: minmax(120px, auto) repeat(5, 100px);
+        background: linear-gradient(to right, #00aaff, #00ff6c);
+      }
+
+      .span-two {
+        grid-column: span 2;
+      }
+
+      .output {
+        grid-column: 1 / -1;
+        background-color: rgba(0, 0, 0, 0.75);
+        display: flex;
+        align-items: flex-end;
+        justify-content: space-around;
+        flex-direction: column;
+        padding: 10px;
+        word-wrap: break-word;
+        word-break: break-all;
+      }
+
+      .output .previous-operand {
+        color: rgba(255, 255, 255, 0.75);
+        font-size: 1.5rem;
+      }
+
+      .output .current-operand {
+        color: white;
+        font-size: 2.5rem;
+      }
+
+    </style>
+    <div class="calculator-grid">
+      <div class="output">
+        <div class="previous-operand">[[previousOperand]]</div>
+        <div class="current-operand"> [[currentOperand]]</div>
+      </div>
+      <calculator-button value="AC" type="special" class="span-two"></calculator-button>
+      <calculator-button value="DEL" type="special"></calculator-button>
+      <calculator-button value="÷" type="operator"></calculator-button>
+      <calculator-button value="1" type="number"></calculator-button>
+      <calculator-button value="2" type="number"></calculator-button>
+      <calculator-button value="3" type="number"></calculator-button>
+      <calculator-button value="*" type="operator"></calculator-button>
+      <calculator-button value="4" type="number"></calculator-button>
+      <calculator-button value="5" type="number"></calculator-button>
+      <calculator-button value="6" type="number"></calculator-button>
+      <calculator-button value="+" type="operator"></calculator-button>
+      <calculator-button value="7" type="number"></calculator-button>
+      <calculator-button value="8" type="number"></calculator-button>
+      <calculator-button value="9" type="number"></calculator-button>
+      <calculator-button value="-" type="operator"></calculator-button>
+      <calculator-button value="." type="number"></calculator-button>
+      <calculator-button value="0" type="number"></calculator-button>
+      <calculator-button value="=" type="operator" class="span-two"></calculator-button>
+    </div>
+  </template>
+
+  <script>
+    /**
+     * @customElement
+     * @polymer
+     */
+    class CalculatorApp extends Polymer.Element {
+      static get is() { return 'calculator-app'; }
+      static get properties() {
+        return {
+          currentOperand: {
+            type: String,
+            value: ''
+          },
+          previousOperand: {
+            type: String,
+            value: ''
+          },
+          operator: {
+            type: String
+          },
+          horizontal_operators: {
+            type: Array ,
+            value: () => {
+              return [
+                {
+                  value: 'AC',
+                  id: 'reset'
+                },
+                {
+                  value: '±',
+                  id: 'changesign'
+                },
+                {
+                  value: '%',
+                  id: 'module'
+                }
+              ]
+            }
+          },
+          vertical_operators: {
+            type: Array,
+            value: () => {
+              return [
+                {
+                    value: '÷',
+                    id: 'dividir'
+                  },
+                  {
+                    value: 'x',
+                    id: 'multiplicar'
+                  },
+                  {
+                    value: '-',
+                    id: 'restar'
+                  },
+                  {
+                    value: '+',
+                    id: 'sumar'
+                  },
+                  {
+                    value: '=',
+                    id: 'equal'
+                  }
+                ]
+            }
+          },
+          numbers: {
+            type: Array,
+            value: () => {
+              return [0,1,2,3,4,5,6,7,8,9,'.']
+            }
+          }
+        };
+      }
+
+      ready() {
+        super.ready();
+        window.addEventListener('press', (e) => {
+          const { value, type } = e.detail;
+          this.logicCalculator(value, type);
+        });
+      }
+
+      cal = () => {
+        const previousOperand = parseFloat(this.previousOperand);
+        const currentOperand = this.currentOperand.length > 0 ? parseFloat(this.currentOperand) : 0;
+
+        if(this.operator === '+') return previousOperand + currentOperand;
+        if(this.operator === '-') return previousOperand - currentOperand;
+        if(this.operator === '*') return previousOperand * currentOperand;
+        if(this.operator === '÷') return previousOperand / currentOperand;
+      }
+
+      logicCalculator = (value, type) => {
+        if(type === 'special') {
+          if(value === 'AC') {
+            this.currentOperand = '';
+            this.previousOperand = '';
+            this.operator = '';
+          }
+          if(value === 'DEL') {
+            const len = this.currentOperand.length;
+            this.currentOperand = this.currentOperand.substring(0, len-1);
+          }
+        }
+     
+        if(type === 'number') {
+          this.currentOperand += value;
+        }
+
+        if(type === 'operator') {
+          this.operator = value;
+          if(this.previousOperand === '') {
+            this.previousOperand = this.currentOperand;
+          } else {
+            if (this.operator === '=') {
+              return;
+            } else {
+              this.previousOperand = this.cal();
+            }
+          }
+          this.currentOperand = '';
+        }
+      }
+    }
+
+    window.customElements.define(CalculatorApp.is, CalculatorApp);
+  </script>
+</dom-module>

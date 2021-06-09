@@ -1,0 +1,57 @@
+<link rel="import" href="../../bower_components/polymer/polymer-element.html">
+
+<dom-module id="calculator-button">
+  <template>
+    <style>
+      button {
+        cursor: pointer;
+        font-size: 2rem;
+        border: 1px solid white;
+        outline: none;
+        background-color: rgba(255, 255, 255, 0.75);
+        height: 100%;
+        width: 100%;
+      }
+
+      button:hover {
+        background-color: rgba(255, 255, 255, 0.9);
+      }
+    </style>
+    <button on-click="pressButton"> [[value]] </button>
+  </template>
+
+  <script>
+    /**
+     * @customElement
+     * @polymer
+     */
+    class CalculatorButton extends Polymer.Element {
+      static get is() { return 'calculator-button'; }
+      static get properties() {
+        return {
+          value: {
+            type: String,
+          },
+          type: {
+            type: String
+          }
+        };
+      }
+
+      pressButton(ev) {
+        this.dispatchEvent(
+          new CustomEvent( 'press', {
+            detail: {
+                      value: this.value,
+                      type: this.type
+                    },
+            bubbles: true,
+            composed: true
+          })
+        );
+      }
+    }
+
+    window.customElements.define(CalculatorButton.is, CalculatorButton);
+  </script>
+</dom-module>

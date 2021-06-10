@@ -30,6 +30,10 @@
         background: linear-gradient(to right, #00aaff, #00ff6c);
       }
 
+      .span-one {
+        grid-column: span 1;
+      }
+
       .span-two {
         grid-column: span 2;
       }
@@ -62,24 +66,9 @@
         <div class="previous-operand">[[previousOperand]]</div>
         <div class="current-operand"> [[currentOperand]]</div>
       </div>
-      <calculator-button value="AC" type="special" class="span-two"></calculator-button>
-      <calculator-button value="DEL" type="special"></calculator-button>
-      <calculator-button value="÷" type="operator"></calculator-button>
-      <calculator-button value="1" type="number"></calculator-button>
-      <calculator-button value="2" type="number"></calculator-button>
-      <calculator-button value="3" type="number"></calculator-button>
-      <calculator-button value="*" type="operator"></calculator-button>
-      <calculator-button value="4" type="number"></calculator-button>
-      <calculator-button value="5" type="number"></calculator-button>
-      <calculator-button value="6" type="number"></calculator-button>
-      <calculator-button value="+" type="operator"></calculator-button>
-      <calculator-button value="7" type="number"></calculator-button>
-      <calculator-button value="8" type="number"></calculator-button>
-      <calculator-button value="9" type="number"></calculator-button>
-      <calculator-button value="-" type="operator"></calculator-button>
-      <calculator-button value="." type="number"></calculator-button>
-      <calculator-button value="0" type="number"></calculator-button>
-      <calculator-button value="=" type="operator" class="span-two"></calculator-button>
+      <template is="dom-repeat" items="[[buttons]]">
+        <calculator-button value="[[item.value]]" type="[[item.type]]" class$="[[item.class]]"></calculator-button>
+      </template>
     </div>
   </template>
 
@@ -103,56 +92,103 @@
           operator: {
             type: String
           },
-          horizontal_operators: {
+          buttons: {
             type: Array ,
             value: () => {
               return [
                 {
                   value: 'AC',
-                  id: 'reset'
+                  id: 'reset',
+                  type: 'special',
+                  class: 'span-two'
                 },
                 {
-                  value: '±',
-                  id: 'changesign'
+                  value: 'DEL',
+                  id: 'del',
+                  type: 'special'
                 },
-                {
-                  value: '%',
-                  id: 'module'
-                }
-              ]
-            }
-          },
-          vertical_operators: {
-            type: Array,
-            value: () => {
-              return [
                 {
                     value: '÷',
-                    id: 'dividir'
-                  },
-                  {
+                    id: 'dividir',
+                    type: 'operator'
+                },
+                {
+                    value: '1',
+                    id: '1',
+                    type: 'number'
+                },
+                {
+                    value: '2',
+                    id: '2',
+                    type: 'number'
+                },
+                {
+                    value: '3',
+                    id: '3',
+                    type: 'number'
+                },
+                {
                     value: 'x',
-                    id: 'multiplicar'
-                  },
-                  {
+                    id: 'multiplicar',
+                    type: 'operator'
+                },
+                {
+                    value: '4',
+                    id: '4',
+                    type: 'number'
+                },
+                {
+                    value: '5',
+                    id: '5',
+                    type: 'number'
+                },
+                {
+                    value: '6',
+                    id: '6',
+                    type: 'number'
+                },
+                {
                     value: '-',
-                    id: 'restar'
-                  },
-                  {
+                    id: 'restar',
+                    type: 'operator'
+                },
+                {
+                    value: '7',
+                    id: '7',
+                    type: 'number'
+                },
+                {
+                    value: '8',
+                    id: '8',
+                    type: 'number'
+                },
+                {
+                    value: '9',
+                    id: '9',
+                    type: 'number'
+                },
+                {
                     value: '+',
-                    id: 'sumar'
-                  },
-                  {
+                    id: 'sumar',
+                    type: 'operator'
+                },
+                {
+                    value: '.',
+                    id: 'point',
+                    type: 'number'
+                },
+                {
+                    value: '0',
+                    id: '0',
+                    type: 'number'
+                },
+                {
                     value: '=',
-                    id: 'equal'
-                  }
-                ]
-            }
-          },
-          numbers: {
-            type: Array,
-            value: () => {
-              return [0,1,2,3,4,5,6,7,8,9,'.']
+                    id: '=',
+                    type: 'operator',
+                    class: 'span-two'
+                },
+              ]
             }
           }
         };
@@ -170,10 +206,10 @@
         const previousOperand = parseFloat(this.previousOperand);
         const currentOperand = this.currentOperand.length > 0 ? parseFloat(this.currentOperand) : 0;
 
-        if(this.operator === '+') return previousOperand + currentOperand;
-        if(this.operator === '-') return previousOperand - currentOperand;
-        if(this.operator === '*') return previousOperand * currentOperand;
-        if(this.operator === '÷') return previousOperand / currentOperand;
+        if(this.operator === '+') return (previousOperand + currentOperand).toFixed(2);
+        if(this.operator === '-') return (previousOperand - currentOperand).toFixed(2);
+        if(this.operator === 'x') return previousOperand * currentOperand.toFixed(2);
+        if(this.operator === '÷') return previousOperand / currentOperand.toFixed(2);
       }
 
       logicCalculator = (value, type) => {
@@ -194,15 +230,16 @@
         }
 
         if(type === 'operator') {
+          if (value === '=') {
+            this.previousOperand = this.cal();
+            this.currentOperand = '';
+            return;
+          }
           this.operator = value;
           if(this.previousOperand === '') {
             this.previousOperand = this.currentOperand;
           } else {
-            if (this.operator === '=') {
-              return;
-            } else {
-              this.previousOperand = this.cal();
-            }
+            this.previousOperand = this.cal();
           }
           this.currentOperand = '';
         }
